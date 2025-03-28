@@ -4,21 +4,25 @@ Date        : 2025-03-06
 Description : son las clases para trabajar con MONGODB
 """
 from pymongo import MongoClient
-
+import json
 class MongoDb_functions:
-    def consultar_documentos(coleccion, filtro=None):
-        """imprimir listado de documentos"""
-        try:
-            if filtro:
-                documents = coleccion.find(filtro)
-            else:
-                documents = coleccion.find()       
-            for document in documents:
-                print(document)   
-        except Exception as e:
-            print(f"Error al consultar documentos: {e}")
+  def __init__(self):
+    print('<<---Inializando class funciones CRUD de mongoDB-->>')
+    
+  def consultar_documentos(self, coleccion, filtro=None,cant_documentos=50):
+    """imprimir listado de documentos"""
+    print("se visualizaran solo ",cant_documentos, ' registros')
+    try:
+        if filtro:
+            documents = coleccion.find(filtro).limit(cant_documentos)
+        else:
+            documents = coleccion.find().limit(cant_documentos)       
+        for document in documents:
+            print(json.dumps(document, indent=4))  
+    except Exception as e:
+        print(f"Error al consultar documentos: {e}")
 
-def consultar_total_documentos(coleccion):
+  def consultar_total_documentos(self,coleccion):
     """imprimir total de documentos"""
     try:
         total_documents = coleccion.count_documents({})
@@ -26,7 +30,7 @@ def consultar_total_documentos(coleccion):
     except Exception as e:
         print(f"Error al consultar total de documentos: {e}")
 
-def crear_documento(coleccion, datos):
+  def crear_documento(self,coleccion, datos):
     """crear un documento"""
     try:
         result = coleccion.insert_one(datos)
@@ -34,7 +38,7 @@ def crear_documento(coleccion, datos):
     except Exception as e:
         print(f"Error al crear documento: {e}")
 
-def actualizar_documento(coleccion, filtro, nuevos_valores):
+  def actualizar_documento(self,coleccion, filtro, nuevos_valores):
     """actualizar un documento"""
     try:
         result = coleccion.update_one(filtro, {"$set": nuevos_valores})

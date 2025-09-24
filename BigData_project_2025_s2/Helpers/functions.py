@@ -10,12 +10,24 @@ import requests
 import sqlite3
 from datetime import datetime
 from pathlib import Path
+from tqdm import tqdm
 import io
 import zipfile
 
 class funciones:
     def __init__(self):
-        print("Clase funciones iniciada")
+        print("Clase funciones iniciada para uso inmediato")
+
+    def crear_carpeta(self,ruta):
+        """crear carpeta"""
+        try:
+            if not os.path.exists(ruta):
+                os.makedirs(ruta)
+                print(f"Carpeta creada: {ruta}")
+            else:
+                print(f"La carpeta ya existe: {ruta}")
+        except Exception as e:
+            print(f"Error al crear carpeta: {e}")
     
     """ Esta funcion revisa el contenido de una tabla en una base de datos SQLite y muestra un  numero limitado de registros."""
     def revisar_contenido_de_una_tabla(db_path, tabla_nombre, whereColumna='',whereValor='', limit=10, order_by_columna=None, order_asc=True):
@@ -57,9 +69,20 @@ class funciones:
             print(f"Error al procesar el archivo {os.path.basename(ruta_archivo)}: {str(e)}")
             return None
     
+    def descomprimir_zip_local(self,ruta_file_zip, ruta_descomprimir):
+      self.crear_carpeta(ruta_descomprimir)
+      with zipfile.ZipFile(ruta_file_zip,'r') as zip_ref:
+        total_files =len(zip_ref.namelist())
+        with tqdm (total=total_files,desc='Descomprimiendo') as pbar:
+          for member in zip_ref.infolist():
+            zip_ref.extract(member,ruta_descomprimir)
+            pbar.update(1)
+
+
     def descargar_y_descomprimir_zip(url, carpeta_destino, tipoArchivo=''):
         
-        os.makedirs(carpeta_destino, exist_ok=True)  #cree la carpeta sino existe
+        #os.makedirs(carpeta_destino, exist_ok=True)  #cree la carpeta sino existe
+        self.crear_carpeta(carpeta_destino)
         response = requests.get(url)
         zip_file = zipfile.ZipFile(io.BytesIO(response.content))
         if (tipoArchivo == ''):
